@@ -3,7 +3,7 @@ import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { ThumbsUp, ThumbsDown, TrendingUp, ChevronRight, BarChart3 } from 'lucide-react';
 
-const MAX_CTR_SCALE = 10; // Gauge max (e.g. 10%)
+const MAX_CTR_SCALE = 100;
 const INDUSTRY_AVG_CTR = 2.5;
 
 const Results = () => {
@@ -15,55 +15,113 @@ const Results = () => {
   const effectivePrediction = predictionFromState ?? prediction;
 
   useEffect(() => {
+    console.log("🔮 Full prediction object:", effectivePrediction);
+  }, [effectivePrediction]);
+
+  useEffect(() => {
     if (predictionFromState) setPrediction(predictionFromState);
   }, [predictionFromState, setPrediction]);
 
   if (!effectivePrediction) return <Navigate to="/dashboard" replace />;
 
   const ctr = Number(effectivePrediction.ctr) || 0;
+  // console.log(ctr)
 
   const getStatusColor = (value) => {
-    if (value > 5) return { text: 'text-green-400', bg: 'bg-green-500', border: 'border-green-500' };
-    if (value > 2) return { text: 'text-violet-400', bg: 'bg-violet-500', border: 'border-violet-500' };
-    return { text: 'text-amber-400', bg: 'bg-amber-500', border: 'border-amber-500' };
+    if (value > 40) {
+      return {
+        text: 'text-green-400',
+        bg: 'bg-green-500',
+        border: 'border-green-500'
+      };
+    }
+
+    if (value >= 25) {
+      return {
+        text: 'text-violet-400',
+        bg: 'bg-violet-500',
+        border: 'border-violet-500'
+      };
+    }
+
+    return {
+      text: 'text-amber-400',
+      bg: 'bg-amber-500',
+      border: 'border-amber-500'
+    };
   };
 
+
   const getStatusLabel = (value) => {
-    if (value > 5) return 'High CTR Potential';
-    if (value > 2) return 'Moderate CTR Potential';
+    if (value > 40) return 'High CTR Potential';
+    if (value >= 25) return 'Moderate CTR Potential';
     return 'Low CTR Potential';
   };
+
 
   const colors = getStatusColor(ctr);
 
   // Factor scores for graphical analysis (0–100). Derive from CTR or use API if available.
-  const factors = effectivePrediction.factors || [
-    { name: 'Clarity & message', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 80 + 10) },
-    { name: 'Urgency / CTA', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 70 + 15) },
-    { name: 'Relevance to audience', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 75 + 12) },
-    { name: 'Visual / copy balance', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 72 + 14) },
+  // const factors = effectivePrediction.factors || [
+  //   { name: 'Clarity & message', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 80 + 10) },
+  //   { name: 'Urgency / CTA', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 70 + 15) },
+  //   { name: 'Relevance to audience', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 75 + 12) },
+  //   { name: 'Visual / copy balance', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 72 + 14) },
+  // ];
+
+  const features = effectivePrediction.features || {};
+
+
+  const factors = [
+    { name: 'Sentiment', score: (features.sentiment_score ?? 0) * 100 },
+    { name: 'CTA Strength', score: (features.cta_score ?? 0) * 100 },
+    { name: 'Persuasion', score: (features.persuasion_score ?? 0) * 100 },
+    { name: 'Readability', score: (features.readability_score ?? 0) * 100 },
+
+    ...(effectivePrediction.type === 'image'
+      ? [
+        { name: 'Brightness', score: (features.brightness ?? 0) * 100 },
+        { name: 'Contrast', score: (features.contrast ?? 0) * 100 },
+        { name: 'Visual Richness', score: (features.edge_density ?? 0) * 100 },
+      ]
+      : [])
   ];
+
 
   // Pros and cons: use API if provided, else derive from CTR tier
-  const pros = effectivePrediction.pros || (ctr > 5
-    ? ['Strong headline and value proposition.', 'Clear call-to-action.', 'Good relevance to target audience.', 'Engaging format.']
-    : ctr > 2
-      ? ['Decent clarity in messaging.', 'Some urgency elements present.', 'Room to improve with small tweaks.']
-      : ['Baseline ad structure is present.', 'Opportunity to test new angles and copy.']);
+  // const pros = effectivePrediction.pros || (ctr > 5
+  //   ? ['Strong headline and value proposition.', 'Clear call-to-action.', 'Good relevance to target audience.', 'Engaging format.']
+  //   : ctr > 2
+  //     ? ['Decent clarity in messaging.', 'Some urgency elements present.', 'Room to improve with small tweaks.']
+  //     : ['Baseline ad structure is present.', 'Opportunity to test new angles and copy.']);
 
-  const cons = effectivePrediction.cons || (ctr > 5
-    ? ['Minor: A/B test more variants to push further.']
-    : ctr > 2
-      ? ['Headline could be stronger.', 'CTA could be more specific.', 'Limited urgency or scarcity.']
-      : ['Weak or generic headline.', 'Unclear or missing CTA.', 'Low perceived relevance or urgency.', 'Copy may be too long or unfocused.']);
+  // const cons = effectivePrediction.cons || (ctr > 5
+  //   ? ['Minor: A/B test more variants to push further.']
+  //   : ctr > 2
+  //     ? ['Headline could be stronger.', 'CTA could be more specific.', 'Limited urgency or scarcity.']
+  //     : ['Weak or generic headline.', 'Unclear or missing CTA.', 'Low perceived relevance or urgency.', 'Copy may be too long or unfocused.']);
 
-  const suggestions = effectivePrediction.suggestions || [
-    'Use a clear, benefit-led headline (e.g. save X%, limited time).',
-    'Add one strong CTA button or link with action words (Get, Start, Try).',
-    'Include urgency: limited time, few spots left, or deadline.',
-    'Shorten copy; lead with the main benefit in the first line.',
-    'Test different visuals or formats (image vs text) and run A/B tests.',
-  ];
+  // const suggestions = effectivePrediction.suggestions || [
+  //   'Use a clear, benefit-led headline (e.g. save X%, limited time).',
+  //   'Add one strong CTA button or link with action words (Get, Start, Try).',
+  //   'Include urgency: limited time, few spots left, or deadline.',
+  //   'Shorten copy; lead with the main benefit in the first line.',
+  //   'Test different visuals or formats (image vs text) and run A/B tests.',
+  // ];
+
+  const analysis = effectivePrediction.analysis || {
+    pros: [],
+    cons: [],
+    suggestions: []
+  };
+
+  useEffect(() => {
+    console.log("Prediction received:", effectivePrediction);
+  }, [effectivePrediction]);
+
+
+  const { pros, cons, suggestions } = analysis;
+
 
   return (
     <div className="min-h-screen bg-[#08070b] text-white relative overflow-x-hidden">
@@ -85,8 +143,9 @@ const Results = () => {
                 {ctr}%
               </div>
               <p className={`text-lg font-medium ${colors.text}`}>
-                {getStatusLabel(ctr)}
+                {effectivePrediction.label ?? getStatusLabel(ctr)}
               </p>
+
               <p className="text-zinc-500 text-sm mt-1">
                 Predicted click-through rate
               </p>

@@ -52,8 +52,10 @@ const Dashboard = () => {
         response = await predictTextCTR(text);
 
         prediction = {
-          ctr: response.data.predicted_ctr,
-          type: 'text',
+          ctr: response.data.predicted_ctr,          // ✅ FIX
+          label: response.data.ctr_label,             // ✅ FIX
+          features: response.data.features,           // ✅ FIX
+          type: 'text'
         };
       }
 
@@ -65,24 +67,27 @@ const Dashboard = () => {
         response = await predictImageCTR(formData);
 
         prediction = {
-          ctr: response.data.predicted_ctr,
+          ctr: response.data.predicted_ctr,          
+          label: response.data.ctr_label,             
+          features: response.data.features,           
           ocrText: response.data.ocr_text,
-          type: 'image',
+          type: 'image'
         };
       }
 
-      setPrediction(prediction);
+      console.log("✅ Prediction saved to context:", prediction);
 
-      navigate('/results', {
-        state: { prediction },
-      });
+      setPrediction(prediction);
+      navigate('/results', { state: { prediction } });
+
     } catch (error) {
       console.error(error);
-      alert('Prediction failed. Please try again.');
+      alert('Prediction failed');
     } finally {
       setLoading(false);
     }
   };
+
 
 
   return (
