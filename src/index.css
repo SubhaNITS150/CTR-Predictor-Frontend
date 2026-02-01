@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+
+@keyframes spin-fast {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.spinner-container {
+  display: inline-block;
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.spinner-ring {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid transparent;
+  border-top-color: #8b5cf6; /* violet-500 */
+  border-radius: 50%;
+  animation: spin-fast 0.6s linear infinite;
+}
+
+.spinner-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse-glow 1.2s ease-in-out infinite;
+}
+
+@layer base {
+  body {
+    background-color: #08070b;
+    margin: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* Starry Sky Background Layer */
+/* Container for the animated stars */
+.dashboard-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #08070b;
+  overflow: hidden; /* Prevents scrollbars from star movement */
+}
+
+/* Base Stars Layer */
+.stars-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 40px 70px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 60px 160px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 120px, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 120px 210px, #fff, transparent),
+    radial-gradient(1px 1px at 150px 150px, #fff, transparent),
+    radial-gradient(1px 1px at 180px 40px, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 210px 90px, #fff, transparent),
+    radial-gradient(1px 1px at 260px 200px, #fff, transparent);
+  background-repeat: repeat;
+  background-size: 280px 280px;
+  opacity: 0.35;
+  animation: move-stars 120s linear infinite;
+  z-index: 0;
+}
+
+
+/* Medium Nebula/Glow Layer */
+.stars-layer-2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    radial-gradient(2px 2px at 100px 100px, #8b5cf6, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 200px 300px, #a78bfa, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  opacity: 0.2;
+  animation: move-stars 150s linear infinite reverse;
+  z-index: 0;
+}
+
+/* High-density tiny stars */
+.stars-layer-3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300%;
+  height: 300%;
+  background-image:
+    radial-gradient(0.8px 0.8px at 10px 20px, #ffffff, transparent),
+    radial-gradient(0.8px 0.8px at 50px 80px, #ffffff, transparent),
+    radial-gradient(0.8px 0.8px at 90px 140px, #ffffff, transparent),
+    radial-gradient(0.8px 0.8px at 130px 40px, #ffffff, transparent),
+    radial-gradient(0.8px 0.8px at 170px 200px, #ffffff, transparent),
+    radial-gradient(0.8px 0.8px at 220px 120px, #ffffff, transparent),
+    radial-gradient(0.8px 0.8px at 260px 260px, #ffffff, transparent);
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.45;
+  animation: move-stars 220s linear infinite;
+  z-index: 0;
+}
+
+
+/* Animation for the drifting motion */
+@keyframes move-stars {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Ensure content stays above stars */
+.glass-panel, header, .app-bar {
+  position: relative;
+  z-index: 10;
+}
+
+/* Glass panel: frosted dark card with purple glow */
+.glass-panel {
+  background: rgba(15, 15, 25, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 1.25rem;
+  box-shadow: 0 0 40px -10px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Analysis card (inner panel)
+.analysis-card {
+  background: rgba(20, 20, 35, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.analysis-card:focus-within,
+.analysis-card:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 24px -8px rgba(139, 92, 246, 0.25);
+} */
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.stars-layer,
+.stars-layer-3 {
+  animation:
+    move-stars 120s linear infinite,
+    twinkle 2s ease-in-out infinite alternate;
+}
