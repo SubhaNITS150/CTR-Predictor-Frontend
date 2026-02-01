@@ -134,7 +134,7 @@ const Dashboard = () => {
                 <div className="relative group">
                   <textarea
                     className="w-full h-56 bg-black/60 border border-white/10 rounded-2xl p-6 text-zinc-200 focus:border-violet-500/50 outline-none transition-all resize-none placeholder:text-zinc-800 text-lg leading-relaxed shadow-inner"
-                    placeholder="Paste your ad copy here..."
+                    placeholder="It takes time for the first time! Please hold on"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                   />
