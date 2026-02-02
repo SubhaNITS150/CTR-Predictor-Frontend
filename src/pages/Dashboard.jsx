@@ -45,17 +45,21 @@ const Dashboard = () => {
       setLoading(true);
 
       let response;
-      let prediction;
+      let predictionData;
 
       // -------- TEXT AD --------
       if (type === 'text') {
         response = await predictTextCTR(text);
 
-        prediction = {
-          ctr: response.data.predicted_ctr,          // ✅ FIX
-          label: response.data.ctr_label,             // ✅ FIX
-          features: response.data.features,           // ✅ FIX
-          type: 'text'
+        // We spread the entire response.data so analysis, predicted_ctr, etc. are all included
+        predictionData = {
+          ...response.data,
+          type: 'text',
+          // Keep these mappings just in case your Results.js uses the old keys
+          ctr: response.data.predicted_ctr,
+          label: response.data.ctr_label,
+          // Ensure analysis exists even if backend fails to provide it
+          analysis: response.data.analysis || { pros: [], cons: [], suggestions: [] }
         };
       }
 
@@ -66,29 +70,28 @@ const Dashboard = () => {
 
         response = await predictImageCTR(formData);
 
-        prediction = {
-          ctr: response.data.predicted_ctr,          
-          label: response.data.ctr_label,             
-          features: response.data.features,           
-          ocrText: response.data.ocr_text,
-          type: 'image'
+        predictionData = {
+          ...response.data,
+          type: 'image',
+          ctr: response.data.predicted_ctr,
+          label: response.data.ctr_label,
+          analysis: response.data.analysis || { pros: [], cons: [], suggestions: [] }
         };
       }
 
-      console.log("✅ Prediction saved to context:", prediction);
+      console.log("✅ Full Prediction Object for Context:", predictionData);
 
-      setPrediction(prediction);
-      navigate('/results', { state: { prediction } });
+      setPrediction(predictionData);
+      // Navigate and pass the full object in state
+      navigate('/results', { state: { prediction: predictionData } });
 
     } catch (error) {
-      console.error(error);
-      alert('Prediction failed');
+      console.error("❌ API Error:", error);
+      alert('Prediction failed. Check console for details.');
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <main className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col min-h-screen">

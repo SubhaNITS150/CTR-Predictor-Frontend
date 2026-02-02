@@ -7,25 +7,30 @@ const MAX_CTR_SCALE = 100;
 const INDUSTRY_AVG_CTR = 2.5;
 
 const Results = () => {
-  const { prediction, setPrediction } = useApp();
+  const { prediction } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const predictionFromState = location.state?.prediction;
+  // const predictionFromState = location.state?.prediction;
 
-  const effectivePrediction = predictionFromState ?? prediction;
+  // const effectivePrediction = predictionFromState ?? prediction;
+  const effectivePrediction = prediction;
+
+  console.log(effectivePrediction);
 
   useEffect(() => {
     console.log("🔮 Full prediction object:", effectivePrediction);
   }, [effectivePrediction]);
 
-  useEffect(() => {
-    if (predictionFromState) setPrediction(predictionFromState);
-  }, [predictionFromState, setPrediction]);
+  // useEffect(() => {
+  //   if (predictionFromState) setPrediction(predictionFromState);
+  // }, [predictionFromState, setPrediction]);
 
   if (!effectivePrediction) return <Navigate to="/dashboard" replace />;
 
   const ctr = Number(effectivePrediction.ctr) || 0;
-  // console.log(ctr)
+  const isImage = effectivePrediction.input_type === 'image' || effectivePrediction.type === 'image';
+
+  console.log(ctr)
 
   const getStatusColor = (value) => {
     if (value > 40) {
@@ -61,14 +66,6 @@ const Results = () => {
 
   const colors = getStatusColor(ctr);
 
-  // Factor scores for graphical analysis (0–100). Derive from CTR or use API if available.
-  // const factors = effectivePrediction.factors || [
-  //   { name: 'Clarity & message', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 80 + 10) },
-  //   { name: 'Urgency / CTA', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 70 + 15) },
-  //   { name: 'Relevance to audience', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 75 + 12) },
-  //   { name: 'Visual / copy balance', score: Math.min(100, (ctr / MAX_CTR_SCALE) * 72 + 14) },
-  // ];
-
   const features = effectivePrediction.features || {};
 
 
@@ -78,38 +75,36 @@ const Results = () => {
     { name: 'Persuasion', score: (features.persuasion_score ?? 0) * 100 },
     { name: 'Readability', score: (features.readability_score ?? 0) * 100 },
 
-    ...(effectivePrediction.type === 'image'
-      ? [
-        { name: 'Brightness', score: (features.brightness ?? 0) * 100 },
-        { name: 'Contrast', score: (features.contrast ?? 0) * 100 },
-        { name: 'Visual Richness', score: (features.edge_density ?? 0) * 100 },
-      ]
-      : [])
+    ...(isImage ? [
+      { name: 'Brightness', score: (features.brightness ?? 0) * 100 },
+      { name: 'Contrast', score: (features.contrast ?? 0) * 100 },
+      { name: 'Visual Richness', score: (features.edge_density ?? 0) * 100 },
+    ] : [])
   ];
 
 
   // Pros and cons: use API if provided, else derive from CTR tier
-  // const pros = effectivePrediction.pros || (ctr > 5
-  //   ? ['Strong headline and value proposition.', 'Clear call-to-action.', 'Good relevance to target audience.', 'Engaging format.']
-  //   : ctr > 2
-  //     ? ['Decent clarity in messaging.', 'Some urgency elements present.', 'Room to improve with small tweaks.']
-  //     : ['Baseline ad structure is present.', 'Opportunity to test new angles and copy.']);
+  const pros = effectivePrediction.pros || (ctr > 5
+    ? ['Strong headline and value proposition.', 'Clear call-to-action.', 'Good relevance to target audience.', 'Engaging format.']
+    : ctr > 2
+      ? ['Decent clarity in messaging.', 'Some urgency elements present.', 'Room to improve with small tweaks.']
+      : ['Baseline ad structure is present.', 'Opportunity to test new angles and copy.']);
 
-  // const cons = effectivePrediction.cons || (ctr > 5
-  //   ? ['Minor: A/B test more variants to push further.']
-  //   : ctr > 2
-  //     ? ['Headline could be stronger.', 'CTA could be more specific.', 'Limited urgency or scarcity.']
-  //     : ['Weak or generic headline.', 'Unclear or missing CTA.', 'Low perceived relevance or urgency.', 'Copy may be too long or unfocused.']);
+  const cons = effectivePrediction.cons || (ctr > 5
+    ? ['Minor: A/B test more variants to push further.']
+    : ctr > 2
+      ? ['Headline could be stronger.', 'CTA could be more specific.', 'Limited urgency or scarcity.']
+      : ['Weak or generic headline.', 'Unclear or missing CTA.', 'Low perceived relevance or urgency.', 'Copy may be too long or unfocused.']);
 
-  // const suggestions = effectivePrediction.suggestions || [
-  //   'Use a clear, benefit-led headline (e.g. save X%, limited time).',
-  //   'Add one strong CTA button or link with action words (Get, Start, Try).',
-  //   'Include urgency: limited time, few spots left, or deadline.',
-  //   'Shorten copy; lead with the main benefit in the first line.',
-  //   'Test different visuals or formats (image vs text) and run A/B tests.',
-  // ];
+  const suggestions = effectivePrediction.suggestions || [
+    'Use a clear, benefit-led headline (e.g. save X%, limited time).',
+    'Add one strong CTA button or link with action words (Get, Start, Try).',
+    'Include urgency: limited time, few spots left, or deadline.',
+    'Shorten copy; lead with the main benefit in the first line.',
+    'Test different visuals or formats (image vs text) and run A/B tests.',
+  ];
 
-  const analysis = effectivePrediction.analysis || {
+  const analysis = effectivePrediction?.analysis || {
     pros: [],
     cons: [],
     suggestions: []
@@ -120,8 +115,10 @@ const Results = () => {
   }, [effectivePrediction]);
 
 
-  const { pros, cons, suggestions } = analysis;
-
+  // const { pros, cons, suggestions } = analysis;
+  console.log(pros);
+  console.log(cons);
+  console.log(suggestions);
 
   return (
     <div className="min-h-screen bg-[#08070b] text-white relative overflow-x-hidden">
